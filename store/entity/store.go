@@ -1,8 +1,9 @@
 package entity
 
 type Store struct {
-	Name string
-	Tags []string
-	Type string
-	Hash string
+	FileName string
+	Name     string
+	Tags     []string
+	Type     string
+	Hash     string
 }
