@@ -2,14 +2,27 @@ package postgres
 
 import (
 	"context"
+	"fmt"
+	"store/dto"
+	"store/entity"
 	"store/pkg/logs"
+	"strings"
 )
 
-func CreateMetadata(ctx context.Context) error {
+func RetrieveStore(ctx context.Context, query dto.RetrieveStoreRequest) (dto.RetrieveStoreResponse, error) {
 	db := GetDB()
+	queryName := ""
+	if query.Name != nil {
+		queryName = fmt.Sprintf("LOWER(name) = LOWER('%s') OR", *query.Name)
+	}
+	fmt.Println(query.Tag)
+	queryTag := fmt.Sprintf("ARRAY[ '%s' ]::varchar[] && tag or", strings.Join(query.Tag, "', '"))
 
-	// Example Query 1: Select all rows from a table
-	rows1, err := db.Query("SELECT name , type FROM store_information")
+	sql := fmt.Sprintf("SELECT id, name , type , hash , tag FROM store_information WHERE %s %s false;", queryName, queryTag)
+	logs.Connect().Error(sql)
+	rows1, err := db.Query(sql)
+
+	listStore := make([]entity.Store, 0, 5)
 	if err != nil {
 		logs.Connect().Fatal(err.Error())
 	}
@@ -17,56 +30,51 @@ func CreateMetadata(ctx context.Context) error {
 
 	// Process the query results
 	for rows1.Next() {
-		var column1, column2 string
-		if err := rows1.Scan(&column1, &column2); err != nil {
+		var id, name, types, hash, tag string
+		if err := rows1.Scan(&id, &name, &types, &hash, &tag); err != nil {
 			logs.Connect().Fatal(err.Error())
 		}
-		logs.Connect().Debug(column1 + column2)
+
+		trimmedTag := strings.Trim(tag, "{}")
+
+		tagSlice := strings.Split(trimmedTag, ",")
+
+		for i, tag := range tagSlice {
+			tagSlice[i] = strings.TrimSpace(tag)
+		}
+
+		logs.Connect().Debug(id + name + types + hash + tag)
+		row := entity.Store{
+			Name: name,
+			Hash: hash,
+			Tags: tagSlice,
+			Type: types,
+		}
+		listStore = append(listStore, row)
 	}
 
 	if err := rows1.Err(); err != nil {
 		logs.Connect().Fatal(err.Error())
 	}
 
-	// // Example Query 2: Select rows with a condition
-	// rows2, err := db.Query("SELECT * FROM your_table WHERE some_column = $1", "some_value")
-	// if err != nil {
-	// 	logs.Connect().Fatal(err.Error())
-	// }
-	// defer rows2.Close()
-
-	// // Process the query results
-	// for rows2.Next() {
-	// 	var column1, column2 string
-	// 	if err := rows2.Scan(&column1, &column2); err != nil {
-	// 		logs.Connect().Fatal(err.Error())
-	// 	}
-	// 	logs.Connect().Debug(column1 + column2)
-	// }
-
-	// if err := rows2.Err(); err != nil {
-	// 	logs.Connect().Fatal(err.Error())
-	// }
-
-	// // Example Query 3: Insert data into a table
-	// _, err = db.Exec("INSERT INTO your_table (column1, column2) VALUES ($1, $2)", "value1", "value2")
-	// if err != nil {
-	// 	logs.Connect().Fatal(err.Error())
-	// }
-
-	// // Example Query 4: Update data in a table
-	// _, err = db.Exec("UPDATE your_table SET column1 = $1 WHERE column2 = $2", "new_value", "old_value")
-	// if err != nil {
-	// 	logs.Connect().Fatal(err.Error())
-	// }
-
-	// // Example Query 5: Delete data from a table
-	// _, err = db.Exec("DELETE FROM your_table WHERE column1 = $1", "value_to_delete")
-	// if err != nil {
-	// 	logs.Connect().Fatal(err.Error())
-	// }
-	return nil
+	return dto.RetrieveStoreResponse{Files: listStore}, nil
 }
 
+func CreateStore(ctx context.Context, request dto.CreateStoreRequest) error {
 
-func RetrieveStore(ctx context.Context , )
+	db := GetDB()
+	defer db.Close()
+	tagsArray := "{" + strings.Join(request.Tags, ",") + "}"
+
+	sql := `INSERT INTO public.store_information (name, type, hash,filename, tag) VALUES ($1, $2, $3,$4 , $5) ;`
+	_, err := db.Exec(sql,
+		request.Name, request.Type, request.Hash, request.FileName, tagsArray)
+
+	if err != nil {
+		logs.Connect().Fatal(err.Error())
+		return err
+	}
+
+	logs.Connect().Info("Data inserted successfully!")
+	return nil
+}
