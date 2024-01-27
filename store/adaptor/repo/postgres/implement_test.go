@@ -11,8 +11,9 @@ import (
 )
 
 func TestRetrieveStore(t *testing.T) {
+	
 	query := dto.RetrieveStoreRequest{Tag: []string{"111", "Stationery"}}
-	results, err := RetrieveStore(context.Background(), query)
+	results, err := NewPostgres().RetrieveStore(context.Background(), query)
 	fmt.Printf("%+v \n", results)
 	assert.NoError(t, err)
 
@@ -28,7 +29,7 @@ func TestCreateStore(t *testing.T) {
 	}
 	request := dto.CreateStoreRequest{Store: storeData}
 
-	err := CreateStore(context.Background(), request)
+	err := NewPostgres().CreateStore(context.Background(), request)
 
 	assert.NoError(t, err)
 

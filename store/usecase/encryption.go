@@ -8,7 +8,15 @@ import (
 	"io"
 )
 
-func Encrypt(ctx context.Context, file []byte) ([]byte, error) {
+type Encryption struct {
+}
+
+func NewEncryption() *Encryption {
+
+	return &Encryption{}
+}
+
+func (e Encryption) Encrypt(ctx context.Context, file *[]byte) (*[]byte, error) {
 
 	key := []byte("1234567891234567")
 
@@ -18,7 +26,7 @@ func Encrypt(ctx context.Context, file []byte) ([]byte, error) {
 
 	}
 
-	ciphertext := make([]byte, aes.BlockSize+len(file))
+	ciphertext := make([]byte, aes.BlockSize+len(*file))
 
 	iv := ciphertext[:aes.BlockSize]
 
@@ -28,12 +36,12 @@ func Encrypt(ctx context.Context, file []byte) ([]byte, error) {
 
 	stream := cipher.NewCFBEncrypter(block, iv)
 
-	stream.XORKeyStream(ciphertext[aes.BlockSize:], file)
+	stream.XORKeyStream(ciphertext[aes.BlockSize:], *file)
 
-	return ciphertext, nil
+	return &ciphertext, nil
 }
 
-func Decrypt(ctx context.Context, file []byte) ([]byte, error) {
+func (e Encryption) Decrypt(ctx context.Context, file *[]byte) (*[]byte, error) {
 
 	key := []byte("1234567891234567")
 
@@ -45,21 +53,21 @@ func Decrypt(ctx context.Context, file []byte) ([]byte, error) {
 
 	// Before even testing the decryption,
 	// if the text is too small, then it is incorrect
-	if len(file) < aes.BlockSize {
+	if len(*file) < aes.BlockSize {
 		panic("Text is too short")
 	}
 
 	// Get the 16 byte IV
-	iv := file[:aes.BlockSize]
+	iv := (*file)[:aes.BlockSize]
 
 	// Remove the IV from the file
-	file = file[aes.BlockSize:]
+	*file = (*file)[aes.BlockSize:]
 
 	// Return a decrypted stream
 	stream := cipher.NewCFBDecrypter(block, iv)
 
 	// Decrypt bytes from file
-	stream.XORKeyStream(file, file)
+	stream.XORKeyStream(*file, *file)
 
 	return file, nil
 

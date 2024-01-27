@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	db              *sql.DB
-	once            sync.Once
+	db   *sql.DB
+	once sync.Once
 )
 
 const (
@@ -22,6 +22,12 @@ const (
 	dbName     = "test"
 )
 
+type setup struct {
+}
+
+func NewPostgres() setup {
+	return setup{}
+}
 func initializeDB() {
 	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		dbHost, dbPort, dbUser, dbPassword, dbName)
@@ -37,7 +43,7 @@ func initializeDB() {
 	}
 }
 
-func GetDB() (*sql.DB) {
+func GetDB() *sql.DB {
 	once.Do(func() {
 		initializeDB()
 	})

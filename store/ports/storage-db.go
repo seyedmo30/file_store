@@ -1,8 +1,12 @@
 package ports
 
-import "context"
-type StorageDB interface {
+import (
+	"context"
+	"store/dto"
+)
 
-	AddFile(ctx context.Context , )( string ,error)
-	
+type StorageDB interface {
+	CreateStore(ctx context.Context, request dto.CreateStoreRequest) error
+
+	RetrieveStore(ctx context.Context, query dto.RetrieveStoreRequest) (dto.RetrieveStoreResponse, error)
 }

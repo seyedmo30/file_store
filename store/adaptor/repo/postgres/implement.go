@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func RetrieveStore(ctx context.Context, query dto.RetrieveStoreRequest) (dto.RetrieveStoreResponse, error) {
+func (s setup) RetrieveStore(ctx context.Context, query dto.RetrieveStoreRequest) (dto.RetrieveStoreResponse, error) {
 	db := GetDB()
 	queryName := ""
 	if query.Name != nil {
@@ -60,7 +60,7 @@ func RetrieveStore(ctx context.Context, query dto.RetrieveStoreRequest) (dto.Ret
 	return dto.RetrieveStoreResponse{Files: listStore}, nil
 }
 
-func CreateStore(ctx context.Context, request dto.CreateStoreRequest) error {
+func (s setup) CreateStore(ctx context.Context, request dto.CreateStoreRequest) error {
 
 	db := GetDB()
 	defer db.Close()
