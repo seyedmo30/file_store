@@ -41,7 +41,7 @@ func (u StoreController) Upload(ctx context.Context, metadata dto.CreateMetadata
 		}
 	}
 
-	createStoreRequest := dto.CreateStoreRequest{entity.Store{FileName: fileName, Type: fileFormat, Name: metadata.Name, Tags: metadata.Tags, Hash: calculateFileHash}}
+	createStoreRequest := dto.CreateStoreRequest{Store: entity.Store{FileName: fileName, Type: fileFormat, Name: metadata.Name, Tags: metadata.Tags, Hash: calculateFileHash}}
 
 	err = u.StorageDB.CreateStore(ctx, createStoreRequest)
 
@@ -60,7 +60,7 @@ func (u StoreController) Retrieve(ctx context.Context, query dto.RetrieveHttpReq
 		return nil, "service cant Retrieve database :  " + err.Error(), 500
 	}
 	mapFiles := make(map[string]*[]byte)
-
+	hashList := make([]string, 0, 1)
 	for _, file := range retrieveStore.Files {
 
 		retriveFile, err := u.FileSystem.RetriveFile(ctx, file.Hash)
@@ -77,13 +77,29 @@ func (u StoreController) Retrieve(ctx context.Context, query dto.RetrieveHttpReq
 		}
 		mapFiles[file.FileName] = fileDecrypt
 
-	}
+		hashList = append(hashList, file.Hash)
 
+	}
+	if len(hashList) == 0 {
+		return nil, "service cant find file  ", 400
+
+	}
 	zipFile, err := u.FileSystem.CreateAndZipFiles(ctx, mapFiles, "response.zip")
 
 	if err != nil {
-		return nil, "service zip file :  " + err.Error(), 500
+		return nil, "service cant zip file :  " + err.Error(), 500
 
+	}
+
+	err = u.StorageDB.DeleteStore(ctx, hashList)
+
+	if err != nil {
+		return nil, "service  cant delete from database :  " + err.Error(), 500
+	}
+
+	err = u.FileSystem.DeleteFiles(ctx, hashList)
+	if err != nil {
+		return nil, "service  cant delete system files :  " + err.Error(), 500
 	}
 
 	return zipFile, "successfully", 200

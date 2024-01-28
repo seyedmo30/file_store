@@ -76,3 +76,30 @@ func (s Setup) CreateStore(ctx context.Context, request dto.CreateStoreRequest) 
 	logs.Connect().Info("Data inserted successfully!")
 	return nil
 }
+
+func (s Setup) DeleteStore(ctx context.Context, hashList []string) error {
+	db := GetDB()
+	if len(hashList) == 0 {
+		return nil
+	}
+
+	quotedStrings := make([]string, len(hashList))
+
+	for i, s := range hashList {
+		quotedStrings[i] = fmt.Sprintf("'%s'", s)
+	}
+
+	// Join the quoted strings with commas
+	joinedStrings := strings.Join(quotedStrings, ",")
+
+	sql := fmt.Sprint("DELETE FROM store_information  WHERE hash IN (", joinedStrings, ") ;")
+	logs.Connect().Info(sql)
+	_, err := db.Exec(sql)
+
+	if err != nil {
+		logs.Connect().Error(err.Error())
+		return err
+	}
+	logs.Connect().Info("Data deleted successfully!")
+	return nil
+}

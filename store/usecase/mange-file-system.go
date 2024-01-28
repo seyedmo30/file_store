@@ -77,3 +77,12 @@ func (f FileSystem) CreateAndZipFiles(ctx context.Context, files map[string]*[]b
 	result := zipBuffer.Bytes()
 	return &result, nil
 }
+
+func (f FileSystem) DeleteFiles(ctx context.Context, fileNames []string) error {
+	var err error
+	for _, fileName := range fileNames {
+		err = os.Remove(fileName)
+
+	}
+	return err
+}
