@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"os"
 )
 
 type Encryption struct {
@@ -20,7 +21,7 @@ func NewEncryption() *Encryption {
 
 func (e Encryption) Encrypt(ctx context.Context, file *[]byte) (*[]byte, error) {
 
-	key := []byte("1234567891234567")
+	key := []byte(os.Getenv("KEY_ENCRYPTION"))
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -45,8 +46,7 @@ func (e Encryption) Encrypt(ctx context.Context, file *[]byte) (*[]byte, error) 
 
 func (e Encryption) Decrypt(ctx context.Context, file *[]byte) (*[]byte, error) {
 
-	key := []byte("1234567891234567")
-
+	key := []byte(os.Getenv("KEY_ENCRYPTION"))
 	// Create the AES cipher
 	block, err := aes.NewCipher(key)
 	if err != nil {
