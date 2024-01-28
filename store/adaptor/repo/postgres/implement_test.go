@@ -38,3 +38,10 @@ func TestCreateStore(t *testing.T) {
 	assert.NoError(t, err)
 
 }
+
+func TestCreateFirstStore(t *testing.T) {
+
+	res, err := NewPostgres().RetrieveFirstStore(context.Background())
+
+	fmt.Println(res, err)
+}

@@ -104,15 +104,15 @@ func (s Setup) DeleteStore(ctx context.Context, hashList []string) error {
 	logs.Connect().Info("Data deleted successfully!")
 	return nil
 }
-
 func (s Setup) RetrieveFirstStore(ctx context.Context) (entity.Store, error) {
 	db := GetDB()
-	result := entity.Store{}
-	rows := db.QueryRow("SELECT id, name , type , hash , tag , filename FROM store_information order by id limit 1;")
+
+	var result entity.Store
+	rows1 := db.QueryRow("SELECT id, name, type, hash, tag, filename FROM store_information ORDER BY id LIMIT 1;")
 
 	var id, name, types, hash, tag, fileName string
 
-	err := rows.Scan(&id, &name, &types, &hash, &tag, &fileName)
+	err := rows1.Scan(&id, &name, &types, &hash, &tag, &fileName)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// Handle case where no rows are returned
@@ -131,17 +131,11 @@ func (s Setup) RetrieveFirstStore(ctx context.Context) (entity.Store, error) {
 		tagSlice[i] = strings.TrimSpace(tag)
 	}
 
-	result = entity.Store{
+	return entity.Store{
 		Name:     name,
 		Hash:     hash,
 		Tags:     tagSlice,
 		Type:     types,
 		FileName: fileName,
-	}
-
-	if err := rows.Err(); err != nil {
-		logs.Connect().Error(err.Error())
-	}
-
-	return result, nil
+	}, nil
 }

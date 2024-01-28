@@ -81,7 +81,34 @@ func (u StoreController) Retrieve(ctx context.Context, query dto.RetrieveHttpReq
 
 	}
 	if len(hashList) == 0 {
-		return nil, "service cant find file  ", 400
+		retrieveStore , err :=u.StorageDB.RetrieveFirstStore(ctx)
+
+
+		if err != nil {
+			return nil, "service cant Retrieve file from system :  " + err.Error(), 500
+
+		}
+
+		retriveFile, err := u.FileSystem.RetriveFile(ctx, retrieveStore.Hash)
+
+		if err != nil {
+			return nil, "service cant Retrieve file from system :  " + err.Error(), 500
+
+		}
+		
+		fileDecrypt, err := u.Encryption.Decrypt(ctx, retriveFile)
+
+		if err != nil {
+			return nil, "service cant Decrypt :  " + err.Error(), 500
+
+		}
+		mapFiles[retrieveStore.FileName] = fileDecrypt
+
+		hashList = append(hashList, retrieveStore.Hash)
+		if len(hashList) == 0{
+
+			return nil, "service cant find file  ", 400
+		}
 
 	}
 	zipFile, err := u.FileSystem.CreateAndZipFiles(ctx, mapFiles, "response.zip")
