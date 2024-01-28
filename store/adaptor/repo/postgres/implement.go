@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"store/dto"
 	"store/entity"
@@ -102,4 +103,45 @@ func (s Setup) DeleteStore(ctx context.Context, hashList []string) error {
 	}
 	logs.Connect().Info("Data deleted successfully!")
 	return nil
+}
+
+func (s Setup) RetrieveFirstStore(ctx context.Context) (entity.Store, error) {
+	db := GetDB()
+	result := entity.Store{}
+	rows := db.QueryRow("SELECT id, name , type , hash , tag , filename FROM store_information order by id limit 1;")
+
+	var id, name, types, hash, tag, fileName string
+
+	err := rows.Scan(&id, &name, &types, &hash, &tag, &fileName)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Handle case where no rows are returned
+			logs.Connect().Info("No rows found.")
+			return result, nil
+		}
+		logs.Connect().Error(err.Error())
+		return result, err
+	}
+
+	trimmedTag := strings.Trim(tag, "{}")
+
+	tagSlice := strings.Split(trimmedTag, ",")
+
+	for i, tag := range tagSlice {
+		tagSlice[i] = strings.TrimSpace(tag)
+	}
+
+	result = entity.Store{
+		Name:     name,
+		Hash:     hash,
+		Tags:     tagSlice,
+		Type:     types,
+		FileName: fileName,
+	}
+
+	if err := rows.Err(); err != nil {
+		logs.Connect().Error(err.Error())
+	}
+
+	return result, nil
 }
