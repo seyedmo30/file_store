@@ -15,8 +15,6 @@ var (
 	once sync.Once
 )
 
-
-
 type Setup struct {
 }
 
@@ -24,11 +22,11 @@ func NewPostgres() Setup {
 	return Setup{}
 }
 func initializeDB() {
-	dbHost     := os.Getenv("POSTGRES_HOST")
-	dbPort     := os.Getenv("POSTGRES_PORT")
-	dbUser     := os.Getenv("POSTGRES_USER")
+	dbHost := os.Getenv("POSTGRES_HOST")
+	dbPort := os.Getenv("POSTGRES_PORT")
+	dbUser := os.Getenv("POSTGRES_USER")
 	dbPassword := os.Getenv("POSTGRES_PASSWORD")
-	dbName     := os.Getenv("POSTGRES_NAME")
+	dbName := os.Getenv("POSTGRES_DB")
 
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbHost, dbPort, dbUser, dbPassword, dbName)

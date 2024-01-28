@@ -51,7 +51,10 @@ func validRequirementEnv() {
 		"POSTGRES_PORT",
 		"POSTGRES_USER",
 		"POSTGRES_PASSWORD",
-		"POSTGRES_NAME",
+		"POSTGRES_DB",
+		"SERVER_API_HOST",
+		"SERVER_API_PORT",
+		"KEY_ENCRYPTION",
 	}
 	isComplete := true
 	for _, val := range listEnvs {

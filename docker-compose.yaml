@@ -1,16 +1,30 @@
-version: '3'
+version: '3.8'
 
 services:
+
+
+  store:
+    build:
+      context: ./
+      dockerfile: Dockerfile.store
+    restart: always
+    env_file:
+          - .env
+          - .env.dev
+ 
+    network_mode: host
+    volumes:
+      - store_data:/app
   postgres:
     image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: test
-      POSTGRES_DB: test
-    ports:
-      - "5432:5432"
+    env_file:
+      - .env
+      - .env.dev 
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+    network_mode: host
 volumes:
   postgres_data:
+  store_data:
+
