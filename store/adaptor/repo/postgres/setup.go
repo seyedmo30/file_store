@@ -3,7 +3,8 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"os"
+	"store/pkg/logs"
 	"sync"
 
 	_ "github.com/lib/pq"
@@ -14,32 +15,32 @@ var (
 	once sync.Once
 )
 
-const (
-	dbHost     = "localhost"
-	dbPort     = 5432
-	dbUser     = "test"
-	dbPassword = "test"
-	dbName     = "test"
-)
 
-type setup struct {
+
+type Setup struct {
 }
 
-func NewPostgres() setup {
-	return setup{}
+func NewPostgres() Setup {
+	return Setup{}
 }
 func initializeDB() {
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+	dbHost     := os.Getenv("POSTGRES_HOST")
+	dbPort     := os.Getenv("POSTGRES_PORT")
+	dbUser     := os.Getenv("POSTGRES_USER")
+	dbPassword := os.Getenv("POSTGRES_PASSWORD")
+	dbName     := os.Getenv("POSTGRES_NAME")
+
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbHost, dbPort, dbUser, dbPassword, dbName)
 
 	var err error
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal(err)
+		logs.Connect().Error(err.Error())
 	}
 	err = db.Ping()
 	if err != nil {
-		log.Fatal(err)
+		logs.Connect().Error(err.Error())
 	}
 }
 

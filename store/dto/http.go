@@ -5,3 +5,8 @@ type CreateMetadataHttpRequest struct {
 	Tags []string `form:"tags" `
 	Type string   `form:"type" validate:"required"`
 }
+
+type RetrieveHttpRequest struct {
+	Name *string   `query:"name" `
+	Tags []string `query:"tags" `
+}

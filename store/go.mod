@@ -38,5 +38,6 @@ require (
 require (
 	github.com/go-playground/validator/v10 v10.17.0
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/joho/godotenv v1.5.1
 	go.uber.org/multierr v1.10.0 // indirect
 )

@@ -5,6 +5,8 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
+	"fmt"
 	"io"
 )
 
@@ -71,4 +73,13 @@ func (e Encryption) Decrypt(ctx context.Context, file *[]byte) (*[]byte, error) 
 
 	return file, nil
 
+}
+
+func (e Encryption) CalculateFileHash(ctx context.Context, fileContent *[]byte) (string, error) {
+	hasher := sha256.New()
+	hasher.Write(*fileContent)
+	hashInBytes := hasher.Sum(nil)
+	hashString := fmt.Sprintf("%x", hashInBytes)
+
+	return hashString, nil
 }

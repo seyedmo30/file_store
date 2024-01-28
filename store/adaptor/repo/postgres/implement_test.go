@@ -5,13 +5,17 @@ import (
 	"fmt"
 	"store/dto"
 	"store/entity"
+	"store/pkg/envs"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
+func init() {
+	envs.Setup()
+}
 func TestRetrieveStore(t *testing.T) {
-	
+
 	query := dto.RetrieveStoreRequest{Tag: []string{"111", "Stationery"}}
 	results, err := NewPostgres().RetrieveStore(context.Background(), query)
 	fmt.Printf("%+v \n", results)
