@@ -12,9 +12,15 @@ services:
           - .env
           - .env.dev
  
-    network_mode: host
+    ports:
+      - "8080:8080"
+    networks:
+      - store-network
+
     volumes:
       - store_data:/app
+    depends_on:
+      - postgres
   postgres:
     image: postgres:15-alpine
     env_file:
@@ -22,10 +28,68 @@ services:
       - .env.dev 
 
     volumes:
+      - ./init/pg_hba.conf:/etc/pg_hba.conf
       - ./init:/docker-entrypoint-initdb.d
-      - postgres_data:/var/lib/postgresql/data
-    network_mode: host
+      - ./init/postgresql.conf:/etc/postgresql.conf
+      - postgres_data4:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "config_file=/etc/postgresql.conf"
+      - "-c"
+      - "hba_file=/etc/pg_hba.conf"
+
+
+    ports:
+      - "5435:5432"
+    networks:
+      - store-network
+
+
+  retrieval:
+    build:
+      context: ./
+      dockerfile: Dockerfile.retrieval
+    restart: always
+    env_file:
+          - .env
+          - .env.dev
+ 
+    ports:
+      - "8086:8086"
+    networks:
+      - retrieval-network
+
+    depends_on:
+      - postgres_retrieval
+  postgres_retrieval:
+    image: postgres:15-alpine
+    env_file:
+      - .env
+      - .env.dev 
+
+    volumes:
+      - ./init/pg_hba.conf:/etc/pg_hba.conf
+      - ./init/postgresql.conf:/etc/postgresql.conf
+      - postgres_gateway_data4:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "config_file=/etc/postgresql.conf"
+      - "-c"
+      - "hba_file=/etc/pg_hba.conf"
+
+    ports:
+      - "5437:5432"
+    networks:
+      - retrieval-network
+
 volumes:
-  postgres_data:
+  postgres_data4:
+  postgres_gateway_data4:
   store_data:
 
+
+networks:
+  store-network:
+  retrieval-network:

@@ -39,6 +39,8 @@ github.com/golang-jwt/jwt
 # github.com/joho/godotenv v1.5.1
 ## explicit; go 1.12
 github.com/joho/godotenv
+# github.com/labstack/echo-contrib v0.15.0
+## explicit; go 1.18
 # github.com/labstack/echo/v4 v4.11.4
 ## explicit; go 1.18
 github.com/labstack/echo/v4
