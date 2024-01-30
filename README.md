@@ -33,7 +33,7 @@ Set-Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDY2MDM0OTksI
 
 
 
-# file_store
+### file_store
 
 curl -X POST \
     -b "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDY1NjI3ODMsInVzZXJuYW1lIjoiYWRtaW4ifQ.HECkBXg41I4iHtKOX7Sa2Y_guD1PT4u7oY5oTow8n_U; Path=/; Expires=Mon, 29 Jan 2024 21:13:03 GMT;" \
@@ -41,3 +41,11 @@ curl -X POST \
     -F "name=ax" \
     -F "type=File_Type" \
     http://localhost:8086/upload
+
+
+
+### retrieve
+
+curl -i -X GET \
+   -b "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDY1NjI3ODMsInVzZXJuYW1lIjoiYWRtaW4ifQ.HECkBXg41I4iHtKOX7Sa2Y_guD1PT4u7oY5oTow8n_U; Path=/; Expires=Mon, 29 Jan 2024 21:13:03 GMT;" \
+ 'http://0.0.0.0:8080/retrieve'

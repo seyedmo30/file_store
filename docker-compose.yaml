@@ -10,7 +10,7 @@ services:
     restart: always
     env_file:
           - .env.dev
- 
+
     ports:
       - "8080:8080"
     networks:
@@ -53,9 +53,9 @@ services:
           - .env.dev
  
     ports:
-      - "80:8080"
+      - "80:8081"
     networks:
-      - retrieval-network
+      - store-network
 
     depends_on:
       - postgres_retrieval
@@ -65,6 +65,7 @@ services:
       POSTGRES_PASSWORD: test
       POSTGRES_USER: test
       POSTGRES_DB: test
+      POSTGRES_PORT: 5433
 
     volumes:
       - ./init/pg_hba.conf:/etc/pg_hba.conf
@@ -72,15 +73,17 @@ services:
       - postgres_gateway_data:/var/lib/postgresql/data
     command:
       - "postgres"
+      - "-p"
+      - "5433"
       - "-c"
       - "config_file=/etc/postgresql.conf"
       - "-c"
       - "hba_file=/etc/pg_hba.conf"
 
     ports:
-      - "5437:5432"
+      - "5437:5433"
     networks:
-      - retrieval-network
+      - store-network
 
 volumes:
   postgres_data:
@@ -90,4 +93,3 @@ volumes:
 
 networks:
   store-network:
-  retrieval-network:
