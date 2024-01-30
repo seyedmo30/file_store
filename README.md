@@ -50,5 +50,5 @@ curl -X POST \
 
 curl -i -X GET \
    -b "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDY2MTUwNjcsInVzZXJuYW1lIjoiYWRtaW4ifQ.tBwtVeXwpK9Y6XTZ9_qtKOMG0fQgYliI7_hpmX88TWw; Expires=Tue, 30 Jan 2024 11:44:27 GMT;" \
- 'http://0.0.0.0:8080/retrieve?name=ax&tags&tags=sport&tags=personal'
+ 'http://0.0.0.0/retrieve?name=ax&tags&tags=sport&tags=personal'
 
