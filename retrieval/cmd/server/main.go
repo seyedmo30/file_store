@@ -134,7 +134,7 @@ func upload(c echo.Context) error {
 
 	form, err := c.MultipartForm()
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
 	var requestBody bytes.Buffer
@@ -144,17 +144,17 @@ func upload(c echo.Context) error {
 		for _, fileHeader := range values {
 			file, err := fileHeader.Open()
 			if err != nil {
-				return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+				return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 			}
 			defer file.Close()
 
 			part, err := writer.CreateFormFile(fieldName, fileHeader.Filename)
 			if err != nil {
-				return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+				return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 			}
 
 			if _, err := io.Copy(part, file); err != nil {
-				return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+				return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 			}
 		}
 	}
@@ -166,18 +166,18 @@ func upload(c echo.Context) error {
 	}
 
 	if err := writer.Close(); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
 	resp, err := http.Post("http://"+os.Getenv("SERVER_API_HOST")+":"+os.Getenv("SERVER_API_PORT")+"/upload", writer.FormDataContentType(), &requestBody)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 	defer resp.Body.Close()
 	result := make([]byte, 0)
 	resp.Body.Read(result)
 
-	return c.JSONBlob(resp.StatusCode, result)
+	return c.JSON(http.StatusOK, map[string]string{"message": "upload success"})
 
 }
 
@@ -212,14 +212,14 @@ func retrieve(c echo.Context) error {
 	resp, err := http.Get(serviceURL)
 	if err != nil {
 
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
 	return c.JSONBlob(resp.StatusCode, respBody)
