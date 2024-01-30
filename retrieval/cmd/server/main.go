@@ -50,7 +50,7 @@ func main() {
 
 	// Start server
 
-	e.Logger.Fatal(e.Start(os.Getenv("POSTGRES_GATE_WAY_HOST") + ":" + os.Getenv("SERVER_API_Gate_WAY_PORT")))
+	e.Logger.Fatal(e.Start(os.Getenv("SERVER_API_Gate_WAY_HOST") + ":" + os.Getenv("SERVER_API_Gate_WAY_PORT")))
 }
 
 func loginHandler(c echo.Context) error {
